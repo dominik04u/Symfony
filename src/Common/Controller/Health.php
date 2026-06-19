@@ -12,6 +12,6 @@ class Health
     #[Route('/health', name: 'health')]
     public function methodName(): Response
     {
-        return new Response('Health 200', 200);
+        return new Response('Health 200', Response::HTTP_OK);
     }
 }
