@@ -1,0 +1,32 @@
+name: PR Review (PHPStan + Reviewdog)
+
+on:
+  pull_request:
+
+jobs:
+  phpstan-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Install Reviewdog
+        uses: reviewdog/action-setup@v1
+
+      - name: Run PHPStan + Reviewdog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          vendor/bin/phpstan analyse src --error-format=raw \
+          | reviewdog -f=phpstan \
+            -name="PHPStan" \
+            -reporter=github-pr-review \
+            -level=warning
