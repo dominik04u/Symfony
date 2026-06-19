@@ -22,11 +22,17 @@ jobs:
         uses: reviewdog/action-setup@v1
 
       - name: Run PHPStan + Reviewdog
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          vendor/bin/phpstan analyse src --error-format=raw \
-          | reviewdog -f=phpstan \
-            -name="PHPStan" \
-            -reporter=github-pr-review \
-            -level=warning
+    env:
+      REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run: |
+      vendor/bin/phpstan analyse src --error-format=raw \
+      | reviewdog -f=phpstan \
+        -name="PHPStan" \
+        -reporter=github-pr-review \
+        -level=warning
+          run: |
+            vendor/bin/phpstan analyse src --error-format=raw \
+            | reviewdog -f=phpstan \
+              -name="PHPStan" \
+              -reporter=github-pr-review \
+              -level=warning
