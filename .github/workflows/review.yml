@@ -3,12 +3,20 @@ name: PR Review (PHPStan + PHPCS + Reviewdog)
 on:
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   review:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -23,6 +31,13 @@ jobs:
         uses: reviewdog/action-setup@v1
 
       # =========================
+      # FETCH BASE BRANCH (KLUCZ)
+      # =========================
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+
+      # =========================
       # PHPSTAN → SUMMARY (CHECK)
       # =========================
       - name: PHPStan (PR summary)
@@ -33,12 +48,13 @@ jobs:
           | reviewdog -f=phpstan \
             -name="PHPStan" \
             -reporter=github-pr-check \
-            -level=warning
+            -level=warning \
+            -filter-mode=diff_context
 
       # =========================
-      # PHPCS → INLINE COMMENTS
+      # PHPCS → INLINE REVIEW
       # =========================
-      - name: PHPCS (PR review comments)
+      - name: PHPCS (PR inline review)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -46,5 +62,5 @@ jobs:
           | reviewdog -f=checkstyle \
             -name="PHPCS" \
             -reporter=github-pr-review \
-            -filter-mode=diff_context \
-            -level=warning
+            -level=warning \
+            -filter-mode=diff_context
