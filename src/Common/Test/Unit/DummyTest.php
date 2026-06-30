@@ -10,6 +10,7 @@ class DummyTest extends TestCase
 {
     public function testDummy(): void
     {
+        /** @phpstan-ignore-next-line */
         $this->assertTrue(true);
     }
 }
