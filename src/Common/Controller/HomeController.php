@@ -13,7 +13,8 @@ class HomeController
      * @return Response
      */
     #[Route('/', name: 'home')]
-    public function __invoke(): Response {
+    public function __invoke(): Response
+    {
         return new Response('Symfony project');
     }
 }
