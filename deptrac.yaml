@@ -7,6 +7,10 @@ deptrac:
         - '#.*Kernel.php#'
 
     layers:
+        -   name: Common
+            collectors:
+                -   type: directory
+                    value: src/Common/.*
 
         # =========================
         # PRODUCT BOUNDED CONTEXT
@@ -121,3 +125,4 @@ deptrac:
         # SHARED IS PURE
         # =========================
         Shared: []
+        Common: [Shared]

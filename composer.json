@@ -21,9 +21,9 @@
         "symfony/yaml": "8.1.*"
     },
     "require-dev": {
+        "deptrac/deptrac": "^4.6",
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^13.2",
-        "qossmic/deptrac": "^2.0",
         "squizlabs/php_codesniffer": "^4.0"
     },
     "config": {
