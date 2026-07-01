@@ -1,0 +1,128 @@
+deptrac:
+    paths:
+        - ./src
+
+    exclude_files:
+        - '#.*Test.*#'
+        - '#.*Kernel.php#'
+
+    layers:
+        -   name: Common
+            collectors:
+                -   type: directory
+                    value: src/Common/.*
+
+        # =========================
+        # PRODUCT BOUNDED CONTEXT
+        # =========================
+        - name: Product.Domain
+          collectors:
+              - type: directory
+                value: src/Product/Domain/.*
+
+        - name: Product.Application
+          collectors:
+              - type: directory
+                value: src/Product/Application/.*
+
+        - name: Product.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Product/Infrastructure/.*
+
+        # =========================
+        # ORDER BOUNDED CONTEXT
+        # =========================
+        - name: Order.Domain
+          collectors:
+              - type: directory
+                value: src/Order/Domain/.*
+
+        - name: Order.Application
+          collectors:
+              - type: directory
+                value: src/Order/Application/.*
+
+        - name: Order.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Order/Infrastructure/.*
+
+        # =========================
+        # PAYMENT BOUNDED CONTEXT
+        # =========================
+        - name: Payment.Domain
+          collectors:
+              - type: directory
+                value: src/Payment/Domain/.*
+
+        - name: Payment.Application
+          collectors:
+              - type: directory
+                value: src/Payment/Application/.*
+
+        - name: Payment.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Payment/Infrastructure/.*
+
+        # =========================
+        # SHARED
+        # =========================
+        - name: Shared
+          collectors:
+              - type: directory
+                value: src/Shared/.*
+
+    ruleset:
+
+        # =========================
+        # DOMAIN RULE (PURE)
+        # =========================
+        Product.Domain:
+            - Shared
+
+        Order.Domain:
+            - Shared
+
+        Payment.Domain:
+            - Shared
+
+        # =========================
+        # APPLICATION RULE
+        # =========================
+        Product.Application:
+            - Product.Domain
+            - Shared
+
+        Order.Application:
+            - Order.Domain
+            - Shared
+
+        Payment.Application:
+            - Payment.Domain
+            - Shared
+
+        # =========================
+        # INFRASTRUCTURE RULE
+        # =========================
+        Product.Infrastructure:
+            - Product.Application
+            - Product.Domain
+            - Shared
+
+        Order.Infrastructure:
+            - Order.Application
+            - Order.Domain
+            - Shared
+
+        Payment.Infrastructure:
+            - Payment.Application
+            - Payment.Domain
+            - Shared
+
+        # =========================
+        # SHARED IS PURE
+        # =========================
+        Shared: []
+        Common: [Shared]
