@@ -17,69 +17,69 @@ jobs:
             # =========================
             # SETUP
             # =========================
-            - name: Checkout
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: 8.4
-                  coverage: none
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.4
+                    coverage: none
 
-            - name: Install dependencies
-              run: composer install --no-interaction --prefer-dist --optimize-autoloader
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-            - name: Install Reviewdog
-              uses: reviewdog/action-setup@v1
+            -   name: Install Reviewdog
+                uses: reviewdog/action-setup@v1
 
             # =========================
             # BASE BRANCH
             # =========================
-            - name: Fetch base branch
-              run: git fetch origin ${{ github.base_ref }} --depth=1
+            -   name: Fetch base branch
+                run: git fetch origin ${{ github.base_ref }} --depth=1
 
             # =========================
             # 🟥 CI GATE (BLOCK MERGE)
             # =========================
 
-            - name: PHPStan (strict)
-              run: vendor/bin/phpstan analyse src
+            -   name: PHPStan (strict)
+                run: vendor/bin/phpstan analyse src
 
-            - name: PHPUnit
-              run: vendor/bin/phpunit
+            -   name: PHPUnit
+                run: vendor/bin/phpunit
 
-            - name: Deptrac (STRICT DDD GATE)
-              run: |
-                  echo "::group::Architecture (Deptrac)"
-                  vendor/bin/deptrac analyse --config-file=deptrac.yaml --formatter=table
-                  echo "::endgroup::"
+            -   name: Deptrac (STRICT DDD GATE)
+                run: |
+                    echo "::group::Architecture (Deptrac)"
+                    vendor/bin/deptrac analyse --config-file=deptrac.yaml --formatter=table
+                    echo "::endgroup::"
 
             # =========================
             # 💬 REVIEW LAYER (CODE-RABBIT STYLE)
             # =========================
 
-            - name: PHPStan (grouped PR review)
-              env:
-                  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  vendor/bin/phpstan analyse src --error-format=raw \
-                  | reviewdog -f=phpstan \
-                    -name="PHPStan (Architecture)" \
-                    -reporter=github-pr-check \
-                    -level=error \
-                    -filter-mode=diff_context \
-                    -fail-level=error
+            -   name: PHPStan (grouped PR review)
+                env:
+                    REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    vendor/bin/phpstan analyse src --error-format=raw \
+                    | reviewdog -f=phpstan \
+                      -name="PHPStan (Architecture)" \
+                      -reporter=github-pr-check \
+                      -level=error \
+                      -filter-mode=diff_context \
+                      -fail-level=error
 
-            - name: PHPCS (grouped PR review)
-              env:
-                  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  vendor/bin/phpcs --standard=PSR12 --report=checkstyle src \
-                  | reviewdog -f=checkstyle \
-                    -name="PHPCS (Style)" \
-                    -reporter=github-pr-review \
-                    -level=warning \
-                    -filter-mode=diff_context \
-                    -fail-level=error
+            -   name: PHPCS (grouped PR review)
+                env:
+                    REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    vendor/bin/phpcs --standard=PSR12 --report=checkstyle src \
+                    | reviewdog -f=checkstyle \
+                      -name="PHPCS (Style)" \
+                      -reporter=github-pr-review \
+                      -level=warning \
+                      -filter-mode=diff_context \
+                      -fail-level=error
