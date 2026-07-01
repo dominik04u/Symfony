@@ -14,7 +14,9 @@ class HealthController
     /**
      * @param DatabaseHealthCheckerInterface $databaseHealthChecker
      */
-    public function __construct(private readonly DatabaseHealthCheckerInterface $databaseHealthChecker) {}
+    public function __construct(private readonly DatabaseHealthCheckerInterface $databaseHealthChecker)
+    {
+    }
 
     /**
      * @return JsonResponse
@@ -30,4 +32,3 @@ class HealthController
         return new JsonResponse($result, Response::HTTP_OK);
     }
 }
-

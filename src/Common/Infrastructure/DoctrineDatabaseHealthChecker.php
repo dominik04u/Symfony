@@ -13,7 +13,9 @@ class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
     /**
      * @param Connection $connection
      */
-    public function __construct(private readonly Connection $connection) {}
+    public function __construct(private readonly Connection $connection)
+    {
+    }
 
     /**
      * @return bool
@@ -26,6 +28,7 @@ class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
             return true;
         } catch (Throwable $e) {
             var_dump($e);
+
             return false;
         }
     }
