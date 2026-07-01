@@ -7,10 +7,23 @@ deptrac:
         - '#.*Kernel.php#'
 
     layers:
-        -   name: Common
-            collectors:
-                -   type: directory
-                    value: src/Common/.*
+        # =========================
+        # COMMON BOUNDED CONTEXT
+        # =========================
+        - name: Common.Domain
+          collectors:
+              - type: directory
+                value: src/Common/Domain/.*
+
+        - name: Common.Application
+          collectors:
+              - type: directory
+                value: src/Common/Application/.*
+
+        - name: Common.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Common/Infrastructure/.*
 
         # =========================
         # PRODUCT BOUNDED CONTEXT
@@ -69,39 +82,82 @@ deptrac:
         # =========================
         # SHARED
         # =========================
-        - name: Shared
+        - name: Shared.Domain
           collectors:
               - type: directory
-                value: src/Shared/.*
+                value: src/Shared/Domain/.*
+
+        - name: Shared.Application
+          collectors:
+              - type: directory
+                value: src/Shared/Application/.*
+
+        - name: Shared.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Shared/Infrastructure/.*
 
     ruleset:
+
+        # =========================
+        # SHARED IS PURE (Domain nic, Application/Infra tylko w dół)
+        # =========================
+        Shared.Domain: []
+
+        Shared.Application:
+            - Shared.Domain
+
+        Shared.Infrastructure:
+            - Shared.Application
+            - Shared.Domain
+
+        # =========================
+        # COMMON RULE
+        # =========================
+        Common.Domain:
+            - Shared.Domain
+
+        Common.Application:
+            - Common.Domain
+            - Shared.Domain
+            - Shared.Application
+
+        Common.Infrastructure:
+            - Common.Application
+            - Common.Domain
+            - Shared.Domain
+            - Shared.Application
+            - Shared.Infrastructure
 
         # =========================
         # DOMAIN RULE (PURE)
         # =========================
         Product.Domain:
-            - Shared
+            - Shared.Domain
 
         Order.Domain:
-            - Shared
+            - Shared.Domain
 
         Payment.Domain:
-            - Shared
+            - Shared.Domain
 
         # =========================
         # APPLICATION RULE
         # =========================
         Product.Application:
             - Product.Domain
-            - Shared
+            - Shared.Domain
+            - Shared.Application
 
         Order.Application:
             - Order.Domain
-            - Shared
+            - Shared.Domain
+            - Shared.Application
 
         Payment.Application:
             - Payment.Domain
-            - Shared
+            - Shared.Domain
+            - Shared.Application
 
         # =========================
         # INFRASTRUCTURE RULE
@@ -109,20 +165,20 @@ deptrac:
         Product.Infrastructure:
             - Product.Application
             - Product.Domain
-            - Shared
+            - Shared.Domain
+            - Shared.Application
+            - Shared.Infrastructure
 
         Order.Infrastructure:
             - Order.Application
             - Order.Domain
-            - Shared
+            - Shared.Domain
+            - Shared.Application
+            - Shared.Infrastructure
 
         Payment.Infrastructure:
             - Payment.Application
             - Payment.Domain
-            - Shared
-
-        # =========================
-        # SHARED IS PURE
-        # =========================
-        Shared: []
-        Common: [Shared]
+            - Shared.Domain
+            - Shared.Application
+            - Shared.Infrastructure
