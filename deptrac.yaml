@@ -5,36 +5,65 @@ deptrac:
     exclude_files:
         - '#.*Test.*#'
         - '#.*Kernel.php#'
-        - '#.*Cache#'
-        - '#.*var#'
 
     layers:
-        # =========================
-        # CORE DOMAIN
-        # =========================
-        - name: Domain
-          collectors:
-              - type: directory
-                value: src/*/Domain/.*
 
         # =========================
-        # APPLICATION (USE CASES)
+        # PRODUCT BOUNDED CONTEXT
         # =========================
-        - name: Application
+        - name: Product.Domain
           collectors:
               - type: directory
-                value: src/*/Application/.*
+                value: src/Product/Domain/.*
 
-        # =========================
-        # INFRASTRUCTURE (OUTER LAYER)
-        # =========================
-        - name: Infrastructure
+        - name: Product.Application
           collectors:
               - type: directory
-                value: src/*/Infrastructure/.*
+                value: src/Product/Application/.*
+
+        - name: Product.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Product/Infrastructure/.*
 
         # =========================
-        # SHARED (optional safe zone)
+        # ORDER BOUNDED CONTEXT
+        # =========================
+        - name: Order.Domain
+          collectors:
+              - type: directory
+                value: src/Order/Domain/.*
+
+        - name: Order.Application
+          collectors:
+              - type: directory
+                value: src/Order/Application/.*
+
+        - name: Order.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Order/Infrastructure/.*
+
+        # =========================
+        # PAYMENT BOUNDED CONTEXT
+        # =========================
+        - name: Payment.Domain
+          collectors:
+              - type: directory
+                value: src/Payment/Domain/.*
+
+        - name: Payment.Application
+          collectors:
+              - type: directory
+                value: src/Payment/Application/.*
+
+        - name: Payment.Infrastructure
+          collectors:
+              - type: directory
+                value: src/Payment/Infrastructure/.*
+
+        # =========================
+        # SHARED
         # =========================
         - name: Shared
           collectors:
@@ -42,27 +71,53 @@ deptrac:
                 value: src/Shared/.*
 
     ruleset:
-        # =========================
-        # DOMAIN RULES (PURE CORE)
-        # =========================
-        Domain: []
 
         # =========================
-        # APPLICATION RULES
+        # DOMAIN RULE (PURE)
         # =========================
-        Application:
-            - Domain
+        Product.Domain:
+            - Shared
+
+        Order.Domain:
+            - Shared
+
+        Payment.Domain:
+            - Shared
 
         # =========================
-        # INFRASTRUCTURE RULES
+        # APPLICATION RULE
         # =========================
-        Infrastructure:
-            - Application
-            - Domain
+        Product.Application:
+            - Product.Domain
+            - Shared
+
+        Order.Application:
+            - Order.Domain
+            - Shared
+
+        Payment.Application:
+            - Payment.Domain
+            - Shared
 
         # =========================
-        # SHARED RULES (SAFE UTILS ONLY)
+        # INFRASTRUCTURE RULE
         # =========================
-        Shared:
-            - Domain
-            - Application
+        Product.Infrastructure:
+            - Product.Application
+            - Product.Domain
+            - Shared
+
+        Order.Infrastructure:
+            - Order.Application
+            - Order.Domain
+            - Shared
+
+        Payment.Infrastructure:
+            - Payment.Application
+            - Payment.Domain
+            - Shared
+
+        # =========================
+        # SHARED IS PURE
+        # =========================
+        Shared: []
