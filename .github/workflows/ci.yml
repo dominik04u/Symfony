@@ -61,17 +61,22 @@ jobs:
             # =========================
             # 🧱 ARCHITECTURE CHECK (DEPTRAC)
             # =========================
-            - name: Architecture check (Deptrac)
-              run: |
-                  echo "=== DEPTRAC DEBUG ==="
-                  pwd
-                  ls -R src
-                  ls -la
+            -   name: Deptrac FULL DEBUG
+                run: |
+                    echo "=== ROOT ==="
+                    pwd
 
-                  vendor/bin/deptrac analyse \
-                    --config-file=deptrac.yaml \
-                    --reporter=text \
-                    -vvv
+                    echo "=== FILES ==="
+                    ls -la
+
+                    echo "=== SRC TREE ==="
+                    ls -R src || true
+
+                    echo "=== CONFIG ==="
+                    cat deptrac.yaml || echo "NO CONFIG FOUND"
+
+                    echo "=== RUN DEPTRAC ==="
+                    vendor/bin/deptrac analyse -vvv --reporter=text
 
             # =========================
             # 💬 PR REVIEW LAYER
