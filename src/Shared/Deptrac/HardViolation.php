@@ -2,12 +2,12 @@
 
 namespace App\Shared\Deptrac;
 
-use App\Common\Controller\HomeController;
+use Symfony\Component\Clock\Clock;
 
 final class HardViolation
 {
     public function run(): void
     {
-        $homeController = new HomeController(); // ❌ Infrastructure used in Shared
+        $homeController = new Clock(); // ❌ Infrastructure used in Shared
     }
 }
