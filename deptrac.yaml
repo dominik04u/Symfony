@@ -6,32 +6,63 @@ deptrac:
         - '#.*Test.*#'
         - '#.*Kernel.php#'
         - '#.*Cache#'
+        - '#.*var#'
 
     layers:
+        # =========================
+        # CORE DOMAIN
+        # =========================
         - name: Domain
           collectors:
               - type: directory
                 value: src/*/Domain/.*
 
+        # =========================
+        # APPLICATION (USE CASES)
+        # =========================
         - name: Application
           collectors:
               - type: directory
                 value: src/*/Application/.*
 
+        # =========================
+        # INFRASTRUCTURE (OUTER LAYER)
+        # =========================
         - name: Infrastructure
           collectors:
               - type: directory
                 value: src/*/Infrastructure/.*
 
+        # =========================
+        # SHARED (optional safe zone)
+        # =========================
+        - name: Shared
+          collectors:
+              - type: directory
+                value: src/Shared/.*
+
     ruleset:
-        Domain:
-            - Application: ~
-            - Infrastructure: false   # 🔥 twarda granica
+        # =========================
+        # DOMAIN RULES (PURE CORE)
+        # =========================
+        Domain: []
 
+        # =========================
+        # APPLICATION RULES
+        # =========================
         Application:
-            - Domain: ~
-            - Infrastructure: false   # 🔥 rekomendowane (czystszy DDD)
+            - Domain
 
+        # =========================
+        # INFRASTRUCTURE RULES
+        # =========================
         Infrastructure:
-            - Domain: ~
-            - Application: ~
+            - Application
+            - Domain
+
+        # =========================
+        # SHARED RULES (SAFE UTILS ONLY)
+        # =========================
+        Shared:
+            - Domain
+            - Application

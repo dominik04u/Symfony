@@ -1,4 +1,4 @@
-name: CI + PR Review (DDD enforced)
+name: CI + PR Review (DDD + grouped analysis)
 
 on:
     pull_request:
@@ -15,91 +15,71 @@ jobs:
         steps:
 
             # =========================
-            # CHECKOUT
+            # SETUP
             # =========================
             - name: Checkout
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
-            # =========================
-            # PHP SETUP
-            # =========================
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: 8.4
                   coverage: none
 
-            # =========================
-            # DEPENDENCIES (ONLY HERE)
-            # =========================
             - name: Install dependencies
               run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-            # =========================
-            # REVIEWDOG
-            # =========================
             - name: Install Reviewdog
               uses: reviewdog/action-setup@v1
 
             # =========================
-            # BASE BRANCH (DIFF CONTEXT)
+            # BASE BRANCH
             # =========================
             - name: Fetch base branch
               run: git fetch origin ${{ github.base_ref }} --depth=1
 
             # =========================
-            # 🟥 CI GATES (BLOCK MERGE)
+            # 🟥 CI GATE (BLOCK MERGE)
             # =========================
-            - name: PHPStan (CI gate)
+
+            - name: PHPStan (strict)
               run: vendor/bin/phpstan analyse src
 
             - name: PHPUnit
               run: vendor/bin/phpunit
 
-            # =========================
-            # 🧱 ARCHITECTURE CHECK (DEPTRAC)
-            # =========================
-            -   name: Deptrac FULL DEBUG
-                run: |
-                    echo "=== ROOT ==="
-                    pwd
-
-                    echo "=== FILES ==="
-                    ls -la
-
-                    echo "=== SRC TREE ==="
-                    ls -R src || true
-
-                    echo "=== CONFIG ==="
-                    cat deptrac.yaml || echo "NO CONFIG FOUND"
-
-                    echo "=== RUN DEPTRAC ==="
-                    vendor/bin/deptrac analyse -vvv --reporter=text
+            - name: Deptrac (STRICT DDD GATE)
+              run: |
+                  echo "::group::Architecture (Deptrac)"
+                  vendor/bin/deptrac analyse --config-file=deptrac.yaml -q
+                  echo "::endgroup::"
 
             # =========================
-            # 💬 PR REVIEW LAYER
+            # 💬 REVIEW LAYER (CODE-RABBIT STYLE)
             # =========================
 
-            - name: PHPStan (PR review)
+            - name: PHPStan (grouped PR review)
               env:
                   REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   vendor/bin/phpstan analyse src --error-format=raw \
                   | reviewdog -f=phpstan \
-                    -name="PHPStan" \
+                    -name="PHPStan (Architecture)" \
                     -reporter=github-pr-check \
-                    -level=warning \
-                    -filter-mode=diff_context
+                    -level=error \
+                    -filter-mode=diff_context \
+                    -fail-level=error
 
-            - name: PHPCS (PR review)
+            - name: PHPCS (grouped PR review)
               env:
                   REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   vendor/bin/phpcs --standard=PSR12 --report=checkstyle src \
                   | reviewdog -f=checkstyle \
-                    -name="PHPCS" \
+                    -name="PHPCS (Style)" \
                     -reporter=github-pr-review \
                     -level=warning \
-                    -filter-mode=diff_context
+                    -filter-mode=diff_context \
+                    -fail-level=error
