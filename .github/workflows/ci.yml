@@ -53,7 +53,7 @@ jobs:
             - name: Deptrac (STRICT DDD GATE)
               run: |
                   echo "::group::Architecture (Deptrac)"
-                  vendor/bin/deptrac analyse --config-file=deptrac.yaml --reporter=text
+                  vendor/bin/deptrac analyse --config-file=deptrac.yaml --formatter=text
                   echo "::endgroup::"
 
             # =========================
