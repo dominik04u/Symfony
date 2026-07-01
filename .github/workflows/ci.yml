@@ -1,72 +1,86 @@
-name: CI + PR Review
+name: CI + PR Review (DDD enforced)
 
 on:
-  pull_request:
+    pull_request:
 
 permissions:
-  contents: read
-  pull-requests: write
-  checks: write
+    contents: read
+    pull-requests: write
+    checks: write
 
 jobs:
-  ci-and-review:
-    runs-on: ubuntu-latest
+    ci:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        steps:
+            # =========================
+            # CHECKOUT
+            # =========================
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.4
-          coverage: none
+            # =========================
+            # PHP SETUP
+            # =========================
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.4
+                  coverage: none
 
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+            - name: Install dependencies
+              run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Install Reviewdog
-        uses: reviewdog/action-setup@v1
+            # =========================
+            # TOOLS
+            # =========================
+            - name: Install Reviewdog
+              uses: reviewdog/action-setup@v1
 
-      # =========================
-      # FETCH BASE BRANCH (DIFF CONTEXT)
-      # =========================
-      - name: Fetch base branch
-        run: git fetch origin ${{ github.base_ref }} --depth=1
+            - name: Install Deptrac
+              run: composer require --dev qossmic/deptrac
 
-      # =========================
-      # 🟥 CI GATE (BLOCK MERGE)
-      # =========================
-      - name: PHPStan (CI gate)
-        run: vendor/bin/phpstan analyse src
+            # =========================
+            # BASE BRANCH
+            # =========================
+            - name: Fetch base branch
+              run: git fetch origin ${{ github.base_ref }} --depth=1
 
-      - name: PHPUnit
-        run: vendor/bin/phpunit
+            # =========================
+            # 🟥 CI GATES (BLOCK MERGE)
+            # =========================
+            - name: PHPStan (CI)
+              run: vendor/bin/phpstan analyse src
 
-      # =========================
-      # 💬 REVIEW LAYER (COMMENTS)
-      # =========================
+            - name: PHPUnit
+              run: vendor/bin/phpunit
 
-      - name: PHPStan (PR summary)
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          vendor/bin/phpstan analyse src --error-format=raw \
-          | reviewdog -f=phpstan \
-            -name="PHPStan" \
-            -reporter=github-pr-check \
-            -level=warning \
-            -filter-mode=diff_context
+            - name: Architecture check (Deptrac)
+              run: vendor/bin/deptrac analyse
 
-      - name: PHPCS (PR inline review)
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          vendor/bin/phpcs --standard=PSR12 --report=checkstyle src \
-          | reviewdog -f=checkstyle \
-            -name="PHPCS" \
-            -reporter=github-pr-review \
-            -level=warning \
-            -filter-mode=diff_context
+            # =========================
+            # 💬 REVIEWDOG (PR COMMENTS)
+            # =========================
+            - name: PHPStan (PR review)
+              env:
+                  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  vendor/bin/phpstan analyse src --error-format=raw \
+                  | reviewdog -f=phpstan \
+                    -name="PHPStan" \
+                    -reporter=github-pr-check \
+                    -level=warning \
+                    -filter-mode=diff_context
+
+            - name: PHPCS (PR review)
+              env:
+                  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  vendor/bin/phpcs --standard=PSR12 --report=checkstyle src \
+                  | reviewdog -f=checkstyle \
+                    -name="PHPCS" \
+                    -reporter=github-pr-review \
+                    -level=warning \
+                    -filter-mode=diff_context
