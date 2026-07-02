@@ -10,6 +10,7 @@ use Exception;
 use PHPUnit\Framework\MockObject\Exception as MockObjectException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class DatabaseHealthCheckerTest extends TestCase
 {
@@ -17,6 +18,10 @@ class DatabaseHealthCheckerTest extends TestCase
      * @var Connection|MockObject
      */
     private MockObject|Connection $connectionMock;
+    /**
+     * @var LoggerInterface|MockObject
+     */
+    private MockObject|LoggerInterface $loggerInterfaceMock;
     /**
      * @var DatabaseHealthChecker
      */
@@ -29,8 +34,9 @@ class DatabaseHealthCheckerTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
+        $this->loggerInterfaceMock = $this->createMock(LoggerInterface::class);
 
-        $this->databaseHealthChecker = new DatabaseHealthChecker($this->connectionMock);
+        $this->databaseHealthChecker = new DatabaseHealthChecker($this->connectionMock, $this->loggerInterfaceMock);
     }
 
     public function testIsHealthyTrue(): void
@@ -38,6 +44,8 @@ class DatabaseHealthCheckerTest extends TestCase
         $this->connectionMock->expects($this->once())
             ->method('executeQuery')
             ->with('SELECT 1');
+        $this->loggerInterfaceMock->expects($this->once())->method('info');
+
         $result = $this->databaseHealthChecker->isHealthy();
 
         $this->assertTrue($result);
@@ -49,6 +57,8 @@ class DatabaseHealthCheckerTest extends TestCase
             ->method('executeQuery')
             ->with('SELECT 1')
             ->willThrowException(new Exception());
+        $this->loggerInterfaceMock->expects($this->never())->method('info');
+
         $result = $this->databaseHealthChecker->isHealthy();
 
         $this->assertFalse($result);
