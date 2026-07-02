@@ -38,6 +38,7 @@ src/
 │   │   ├── Repository/         ---> Implementacje
 │   │   ├── Service/            
 │   │   └── Controller/
+│   │
 │   └── Tests/
 │       ├── Unit/
 │       ├── Integration/
