@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Common\Infrastructure;
+namespace App\Common\Infrastructure\Service\Doctrine;
 
 use App\Common\Application\DatabaseHealthCheckerInterface;
 use Doctrine\DBAL\Connection;
 use Throwable;
 
-class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
+class DatabaseHealthChecker implements DatabaseHealthCheckerInterface
 {
     /**
      * @param Connection $connection
@@ -27,8 +27,6 @@ class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
 
             return true;
         } catch (Throwable $e) {
-            var_dump($e);
-
             return false;
         }
     }

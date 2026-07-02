@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Common\Infrastructure\Logging;
+namespace App\Common\Infrastructure\Service\Logging;
 
 class RequestIdProcessor
 {

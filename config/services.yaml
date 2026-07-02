@@ -23,5 +23,5 @@ services:
     # please note that last definitions always *replace* previous ones
 
     App\Common\Application\DatabaseHealthCheckerInterface:
-        class: App\Common\Infrastructure\DoctrineDatabaseHealthChecker
+        class: App\Common\Infrastructure\Service\Doctrine\DatabaseHealthChecker
 
