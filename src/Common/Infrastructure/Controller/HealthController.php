@@ -17,7 +17,6 @@ readonly class HealthController
      */
     public function __construct(
         private DatabaseHealthCheckerInterface $databaseHealthChecker,
-        private LoggerInterface $logger,
     ) {
     }
 
@@ -27,7 +26,6 @@ readonly class HealthController
     #[Route('/health', name: 'health', methods: ['GET'])]
     public function methodName(): JsonResponse
     {
-$this->logger->info('Health check TEST');
         $result = [
             'app_status' => 'ok',
             'db_status' => $this->databaseHealthChecker->isHealthy() ? 'ok' : 'ko',
