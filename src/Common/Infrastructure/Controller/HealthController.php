@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Common\Infrastructure\Controller;
 
 use App\Common\Application\DatabaseHealthCheckerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class HealthController
+readonly class HealthController
 {
     /**
      * @param DatabaseHealthCheckerInterface $databaseHealthChecker
      */
-    public function __construct(private readonly DatabaseHealthCheckerInterface $databaseHealthChecker)
-    {
+    public function __construct(
+        private DatabaseHealthCheckerInterface $databaseHealthChecker,
+    ) {
     }
 
     /**

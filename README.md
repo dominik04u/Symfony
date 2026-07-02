@@ -26,7 +26,7 @@ src/
 ├── Product/
 │   ├── Domain/
 │   │   ├── Entity/
-│   │   ├── Repository/
+│   │   ├── Repository/         ---> Interfejsy
 │   │   └── ValueObject/
 │   │
 │   ├── Application/
@@ -34,10 +34,14 @@ src/
 │   │   ├── Query/
 │   │   └── Handler/
 │   │
-│   └── Infrastructure/
-│       ├── Doctrine/
-│       ├── Repository/
-│       └── Controller/
+│   ├── Infrastructure/
+│   │   ├── Repository/         ---> Implementacje
+│   │   ├── Service/            
+│   │   └── Controller/
+│   └── Tests/
+│       ├── Unit/
+│       ├── Integration/
+│       └── Functional/
 │
 ├── Order/
 │   ├── Domain/

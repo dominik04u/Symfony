@@ -2,19 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Common\Infrastructure;
+namespace App\Common\Infrastructure\Service\Doctrine;
 
 use App\Common\Application\DatabaseHealthCheckerInterface;
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
-class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
+readonly class DatabaseHealthChecker implements DatabaseHealthCheckerInterface
 {
     /**
      * @param Connection $connection
+     * @param LoggerInterface $logger
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private Connection $connection,
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -24,10 +28,11 @@ class DoctrineDatabaseHealthChecker implements DatabaseHealthCheckerInterface
     {
         try {
             $this->connection->executeQuery('SELECT 1');
+            $this->logger->info('Database is healthy');
 
             return true;
         } catch (Throwable $e) {
-            var_dump($e);
+            $this->logger->error($e->getMessage());
 
             return false;
         }
